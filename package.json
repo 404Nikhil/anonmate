@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.32",
+    "@ai-sdk/react": "^0.0.4",
     "ai": "^3.2.1",
     "bcryptjs": "^2.4.3",
     "mongoose": "^8.4.1",
