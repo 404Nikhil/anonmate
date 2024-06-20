@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDebounceValue } from 'usehooks-ts';
+import { useDebounceValue, useDebounceCallback } from 'usehooks-ts';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ export default function SignUpForm() {
   const [usernameMessage, setUsernameMessage] = useState(''); 
   const [isCheckingUsername, setIsCheckingUsername] = useState(false); // loader state boolean
   const [isSubmitting, setIsSubmitting] = useState(false); // boolean field submit state
-  const debouncedUsername = useDebounceValue(username, 300);
+  const debounced = useDebounceCallback(setUsername, 300);
 
   const router = useRouter();
   const { toast } = useToast();
@@ -44,14 +44,15 @@ export default function SignUpForm() {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debouncedUsername) {
+      if (username) {
         setIsCheckingUsername(true);
         setUsernameMessage(''); // Reset message
         try {
           const response = await axios.get<ApiResponse>(
-            `/api/c-uniqueUsername?username=${debouncedUsername}`
+            `/api/c-uniqueUsername?username=${username}`
           );
-          setUsernameMessage(response.data.message);
+          let message = response.data.message
+          setUsernameMessage(message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
           setUsernameMessage(
@@ -63,7 +64,7 @@ export default function SignUpForm() {
       }
     };
     checkUsernameUnique();
-  }, [debouncedUsername]);
+  }, [username]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
@@ -106,7 +107,8 @@ export default function SignUpForm() {
           </h1>
           <p className="mb-4">Sign up to start your anonymous adventure</p>
         </div>
-        <Form {...form}>
+        {/* destructured form  */}
+        <Form {...form}> 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               name="username"
@@ -114,11 +116,12 @@ export default function SignUpForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Username</FormLabel>
+                  {/* issue! input is not directly installed with form shad ui */}
                   <Input
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
-                      setUsername(e.target.value);
+                      debounced(e.target.value);
                     }}
                   />
                   {isCheckingUsername && <Loader2 className="animate-spin" />}
@@ -161,6 +164,7 @@ export default function SignUpForm() {
                 </FormItem>
               )}
             />
+            {/* Submit button  */}
             <Button type="submit" className='w-full' disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
