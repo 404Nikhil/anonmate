@@ -49,7 +49,7 @@ export default function SignUpForm() {
         setUsernameMessage(''); // Reset message
         try {
           const response = await axios.get<ApiResponse>(
-            `/api/check-username-unique?username=${debouncedUsername}`
+            `/api/c-uniqueUsername?username=${debouncedUsername}`
           );
           setUsernameMessage(response.data.message);
         } catch (error) {
@@ -100,13 +100,7 @@ export default function SignUpForm() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-800">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join True Feedback
-          </h1>
-          <p className="mb-4">Sign up to start your anonymous adventure</p>
-        </div>
-        <Form {...form}>
+      <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               name="username"
@@ -173,14 +167,6 @@ export default function SignUpForm() {
             </Button>
           </form>
         </Form>
-        <div className="text-center mt-4">
-          <p>
-            Already a member?{' '}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
-              Sign in
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
